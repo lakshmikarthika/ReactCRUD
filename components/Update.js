@@ -1,57 +1,41 @@
-import React,{useEffect,useState} from "react";
-import axios from "axios";
-import { Label, Table, Button } from "semantic-ui-react";
-import {Link} from 'react-router-dom'
+import React, { useState,useEffect } from 'react'
+import { Button, Form } from 'semantic-ui-react'
+import axios from 'axios';
+import {useNavigate} from 'react-router-dom'
 
-function Read() {
-    const [apiData,setApiData] = useState([])
-    useEffect(()=> {
-        getData();
-    })
-    const setData = (id,fn,ln) => {
-        localStorage.setItem('Id',id);
-        localStorage.setItem('fname',fn);
-        localStorage.setItem('lname',ln);
-    }
-    const getData = () => {
-        axios.get('https://63747e9548dfab73a4e0ef1b.mockapi.io/Crud')
-        .then((res)=> setApiData(res.data));
-    }
-    const deleteData = (id) => {
-        axios.delete(`https://63747e9548dfab73a4e0ef1b.mockapi.io/Crud/${id}`)
-        .then(()=> {
-            getData();
+const Update = () => {
+    const [fname, setFname] = useState('');
+    const [lname, setLname] = useState('');
+    const [id,setId] = useState(null);
+    const navigate = useNavigate();
+    const sendData = () => {
+        axios.put(`https://63747e9548dfab73a4e0ef1b.mockapi.io/Crud/${id}`,{
+            fname,
+            lname
         })
-
+        navigate('/read')
     }
-  return (
-    <div>
-      <Table celled>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>No</Table.HeaderCell>
-            <Table.HeaderCell>FirstName</Table.HeaderCell>
-            <Table.HeaderCell>LastName</Table.HeaderCell>
-            <Table.HeaderCell>Update</Table.HeaderCell>
-            <Table.HeaderCell>Delete</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-            {apiData.map((data)=> (
-                <Table.Row>
-                <Table.Cell>
-                  <Label>{data.id}</Label>
-                </Table.Cell>
-                <Table.Cell>{data.fname}</Table.Cell>
-                <Table.Cell>{data.lname}</Table.Cell>
-                <Table.Cell><Link to="/update"><Button color="green" onClick={()=> setData(data.id,data.fname,data.lname)}>Update</Button></Link></Table.Cell>
-                <Table.Cell><Button color="red" onClick={()=> deleteData(data.id)}>Delete</Button></Table.Cell>
-              </Table.Row>
-            ))}
-        </Table.Body>
-      </Table>
-    </div>
-  );
+    useEffect(()=> {
+        setFname(localStorage.getItem('fname'));
+        setLname(localStorage.getItem('lname'));
+        setId(localStorage.getItem('Id'))
+    },[])
+    return (
+        <>
+            <Form>
+                <Form.Field>
+                    <label>First Name</label>
+                    <input placeholder='First Name' value={fname} onChange={(e)=> setFname(e.target.value)}/>
+                </Form.Field>
+                <Form.Field>
+                    <label>Last Name</label>
+                    <input placeholder='Last Name' value={lname} onChange={(e)=> setLname(e.target.value)}/>
+                </Form.Field>
+                <Button type='submit' onClick={sendData}>Update</Button>
+            </Form>
+        </>
+    )
+
 }
 
-export default Read;
+export default Update
